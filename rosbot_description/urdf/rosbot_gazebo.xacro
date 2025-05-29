@@ -1,0 +1,55 @@
+<?xml version="1.0" ?>
+<robot xmlns:xacro="http://ros.org/wiki/xacro" name="rosbot">
+
+  <!-- Gazebo friction and contact tuning for left wheel -->
+  <gazebo reference="wheel_left_link">
+    <mu1>1.0</mu1>
+    <mu2>1.0</mu2>
+    <kp>1000000.0</kp>
+    <kd>10.0</kd>
+    <minDepth>0.001</minDepth>
+    <maxVel>0.01</maxVel>
+    <fdir1>1 0 0</fdir1>
+  </gazebo>
+
+  <!-- Gazebo friction and contact tuning for right wheel -->
+  <gazebo reference="wheel_right_link">
+    <mu1>1.0</mu1>
+    <mu2>1.0</mu2>
+    <kp>1000000.0</kp>
+    <kd>10.0</kd>
+    <minDepth>0.001</minDepth>
+    <maxVel>0.01</maxVel>
+    <fdir1>1 0 0</fdir1>
+  </gazebo>
+
+  <!-- Gazebo contact parameters for caster (less grip) -->
+  <gazebo reference="caster_wheel_link">
+    <mu1>0.1</mu1>
+    <mu2>0.1</mu2>
+    <kp>100000.0</kp>
+    <kd>10.0</kd>
+    <minDepth>0.001</minDepth>
+    <maxVel>0.01</maxVel>
+  </gazebo>
+
+
+ <!-- ROS 2 Control -->
+  <gazebo>
+    <!-- ROS 2 Humble -->
+    <xacro:if value="$(arg is_ignition)">
+      <plugin filename="ign_ros2_control-system" name="ign_ros2_control::IgnitionROS2ControlPlugin">
+        <parameters>$(find rosbot_controller)/config/rosbot_controllers.yaml</parameters>
+      </plugin>
+    </xacro:if>
+
+    <!-- ROS 2 Iron or above -->
+    <xacro:unless value="$(arg is_ignition)">
+      <plugin filename="gz_ros2_control-system" name="gz_ros2_control::GazeboSimROS2ControlPlugin">
+         <parameters>$(find rosbot_controller)/config/rosbot_controllers.yaml</parameters> 
+      </plugin>
+    </xacro:unless>
+    
+  </gazebo>
+
+</robot>
