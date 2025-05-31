@@ -1,0 +1,1 @@
+[Refrence Repo](https://github.com/art-e-fact/navigation2_ignition_gazebo_example/blob/main/src/sam_bot_nav2_gz/launch/complete_navigation.launch.py)
