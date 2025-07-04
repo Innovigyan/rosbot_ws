@@ -19,7 +19,7 @@ def generate_launch_description():
     # Launch arguments
     use_sim_time_arg = DeclareLaunchArgument(
         "use_sim_time",
-        default_value="True",
+        default_value="true",
         description="Use simulation (Gazebo) clock if true"
     )
     wheel_radius_arg = DeclareLaunchArgument(
@@ -81,6 +81,14 @@ def generate_launch_description():
         }]
     )
 
+    # joint_state_publisher node (needed to publish static/fixed joint transforms)
+    joint_state_publisher_node = Node(
+        package="joint_state_publisher",
+        executable="joint_state_publisher",
+        name="joint_state_publisher",
+        parameters=[{"use_sim_time": use_sim_time}]
+    )
+
     # rviz node
     rviz_node = Node(
         package="rviz2",
@@ -89,6 +97,18 @@ def generate_launch_description():
         output="screen",
         arguments=["-d", os.path.join(rosbot_description_dir, "rviz", "display.rviz")],
         parameters=[{"use_sim_time": use_sim_time}]
+    )
+
+    # EKF Node
+    ekf_node = Node(
+        package="robot_localization",
+        executable="ekf_node",
+        name="ekf_node",
+        output="screen",
+        parameters=[
+            os.path.join(rosbot_controller_dir, "config", "ekf.yaml"),
+            {"use_sim_time": use_sim_time}
+        ]
     )
 
     # ros2_control nodes
@@ -121,10 +141,12 @@ def generate_launch_description():
         wheel_radius_arg,
         wheel_separation_arg,
         model_arg,
+        ekf_node,
         controller_config_arg,
         gazebo_launch,
         robot_state_publisher_node,
+        joint_state_publisher_node,
         rviz_node,
         joint_state_broadcaster_spawner,
-        diff_drive_base_controller_spawner,
+        diff_drive_base_controller_spawner
     ])

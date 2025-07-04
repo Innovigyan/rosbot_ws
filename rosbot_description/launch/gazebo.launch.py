@@ -13,14 +13,28 @@ from launch_ros.parameter_descriptions import ParameterValue
 
 def generate_launch_description():
     rosbot_description = get_package_share_directory("rosbot_description")
+    rosbot_controller = get_package_share_directory("rosbot_controller")
 
+    world_file = os.path.join(rosbot_controller, 'worlds', 'depot.sdf')
 
+    gazebo_params_file = os.path.join(
+        get_package_share_directory("rosbot_controller"),  # Or replace with your actual package
+        "config",
+        "gazebo_params.yaml"
+    )
+    
     model_arg = DeclareLaunchArgument(
         name="model",
         default_value=os.path.join(
             rosbot_description, "urdf", "rosbot.urdf.xacro"
         ),
         description="Absolute path to robot urdf file"
+    )
+
+    world_arg = DeclareLaunchArgument(
+        name="world",
+        default_value=world_file,                                   #"empty.sdf",
+        description="Ignition Gazebo world file to load"
     )
 
     gazebo_resource_path = SetEnvironmentVariable(
@@ -41,14 +55,14 @@ def generate_launch_description():
         value_type=str
     )
 
-    robot_state_publisher_node = Node(
-        package="robot_state_publisher",
-        executable="robot_state_publisher",
-        parameters=[{
-            "robot_description": robot_description,
-            "use_sim_time": True
-        }]
-    )
+    # robot_state_publisher_node = Node(
+    #     package="robot_state_publisher",
+    #     executable="robot_state_publisher",
+    #     parameters=[{
+    #         "robot_description": robot_description,
+    #         "use_sim_time": True
+    #     }]
+    # )
 
     gazebo = IncludeLaunchDescription(
         PythonLaunchDescriptionSource([
@@ -59,7 +73,7 @@ def generate_launch_description():
             )
         ]),
         launch_arguments=[
-            ("gz_args", "-v 4 -r empty.sdf --headless-rendering")
+            ("gz_args", ["-v 4 -r ", LaunchConfiguration("world"), " --headless-rendering"])
         ]
     )
 
@@ -78,15 +92,16 @@ def generate_launch_description():
             "/imu@sensor_msgs/msg/Imu[gz.msgs.IMU",
             "/scan@sensor_msgs/msg/LaserScan[gz.msgs.LaserScan"
         ],
-        remappings=[
-            ("/imu", "/imu/out")
-        ]
+        # remappings=[
+        #     ("/imu", "/imu/out")
+        # ]
     )
 
     return LaunchDescription([
         model_arg,
+        world_arg,
         gazebo_resource_path,
-        robot_state_publisher_node,
+        # robot_state_publisher_node,
         gazebo,
         gz_spawn_entity,
         gz_ros2_bridge

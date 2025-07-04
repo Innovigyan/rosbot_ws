@@ -38,7 +38,8 @@ diff_drive_base_controller:
 
     # Publish wheel data
     publish_wheel_data: true
-    use_stamped_vel: false
+    use_stamped_vel: true
+    
     # Publish to TF directly or not
     enable_odom_tf: true
 

@@ -2,9 +2,10 @@
 <robot xmlns:xacro="http://www.ros.org/wiki/xacro" name="rosbot">
 
     <ros2_control name="IgnitionSystem" type="system">
-
+    <!-- <ros2_control name="GazeboSystem" type="system"> -->
         <hardware>
             <plugin>ign_ros2_control/IgnitionSystem</plugin>
+            <!-- <plugin>gazebo_ros2_control/GazeboSystem</plugin> -->
         </hardware>
         
         <!-- ros2_control Common Interfaces -->
